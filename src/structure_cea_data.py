@@ -38,7 +38,7 @@ class StructureCeaData:
 
     def __init__(self, data_path):
         """
-        Initiate path to raw data as well as for structured data
+        Initialize path to raw data as well as for structured data
 
         ...
 

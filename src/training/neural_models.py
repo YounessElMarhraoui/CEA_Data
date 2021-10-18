@@ -538,3 +538,158 @@ class CNN_two_channels_Model(tf.keras.Model):
         x = self.flt(x)
         x = self.fc1(x)
         return x
+
+class CNN_two_channels_Model_bis(tf.keras.Model):
+    """
+    A class to create the arcitecture of the DNN model
+
+    ...
+
+    Attributes
+    ----------
+    inputs : array
+       the array of inputs that the model would train on
+    """
+
+    def __init__(self):
+        """
+        Initialize the layers of the model
+        """
+        super(CNN_two_channels_Model_bis, self).__init__()
+
+        self.conv1 = tf.keras.layers.Conv3D(filters=128, kernel_size=2, padding="same")
+        self.bn1 = tf.keras.layers.BatchNormalization()
+        self.act1 = tf.keras.layers.ReLU()
+
+        self.conv2 = tf.keras.layers.Conv2D(filters=64, kernel_size=2, padding="same")
+        self.bn2 = tf.keras.layers.BatchNormalization()
+        self.act2 = tf.keras.layers.ReLU()
+
+        self.conv3 = tf.keras.layers.Conv2D(filters=128, kernel_size=2, padding="same")
+        self.bn3 = tf.keras.layers.BatchNormalization()
+        self.act3 = tf.keras.layers.ReLU()
+
+        self.gap = tf.keras.layers.GlobalAveragePooling3D()
+
+        self.flt = tf.keras.layers.Flatten()
+        self.fc1 = tf.keras.layers.Dense(1, activation=tf.nn.sigmoid)
+
+    def call(self, inputs):
+        """Forwad propagates the inputs into the model
+
+        Parameters
+        ----------
+        inputs : array
+           the array of inputs that the model would train on
+
+        Returns
+        -------
+        x : tensor
+            the output of the model
+        in_acc_x = inputs[0][0]
+        in_acc_y = inputs[0][1]
+        in_acc_z = inputs[0][2]
+        in_gyro_x = inputs[0][3]
+        in_gyro_y = inputs[0][4]
+        in_gyro_z = inputs[0][5]
+
+        in_acc = K.stack([in_acc_x, in_acc_y, in_acc_z])
+        in_gyro = K.stack([in_gyro_x, in_gyro_y, in_gyro_z])
+        in_all = K.stack([in_acc, in_gyro])
+        in_all = tf.reshape(in_all, [-1, in_all.shape[0], in_all.shape[1], in_all.shape[2]])
+        """
+
+        x = self.conv1(inputs)
+        x = self.bn1(x)
+        x = self.act1(x)
+
+        #x = self.conv2(x)
+        #x = self.bn2(x)
+        #x = self.act2(x)
+
+        #x = self.conv3(x)
+        #x = self.bn3(x)
+        #x = self.act3(x)
+
+        x = self.gap(x)
+        x = self.flt(x)
+        x = self.fc1(x)
+        return x
+
+    
+class CNN_two_channels_Model_tri(tf.keras.Model):
+    """
+    A class to create the arcitecture of the DNN model
+
+    ...
+
+    Attributes
+    ----------
+    inputs : array
+       the array of inputs that the model would train on
+    """
+
+    def __init__(self):
+        """
+        Initialize the layers of the model
+        """
+        super(CNN_two_channels_Model_tri, self).__init__()
+
+        self.conv1 = tf.keras.layers.ConvLSTM2D(filters=64, kernel_size=2, padding="same", return_sequences=True, activation='relu')
+        self.bn1 = tf.keras.layers.BatchNormalization()
+        self.act1 = tf.keras.layers.ReLU()
+
+        self.conv2 = tf.keras.layers.ConvLSTM2D(filters=64, kernel_size=2, padding="same", return_sequences=True, activation='relu')
+        self.bn2 = tf.keras.layers.BatchNormalization()
+        self.act2 = tf.keras.layers.ReLU()
+
+        self.conv3 = tf.keras.layers.Conv3D(filters=1, kernel_size=2, padding="same")
+        self.bn3 = tf.keras.layers.BatchNormalization()
+        self.act3 = tf.keras.layers.ReLU()
+
+        self.gap = tf.keras.layers.GlobalAveragePooling3D()
+
+        self.flt = tf.keras.layers.Flatten()
+        self.fc1 = tf.keras.layers.Dense(1, activation=tf.nn.sigmoid)
+
+    def call(self, inputs):
+        """Forwad propagates the inputs into the model
+
+        Parameters
+        ----------
+        inputs : array
+           the array of inputs that the model would train on
+
+        Returns
+        -------
+        x : tensor
+            the output of the model
+        in_acc_x = inputs[0][0]
+        in_acc_y = inputs[0][1]
+        in_acc_z = inputs[0][2]
+        in_gyro_x = inputs[0][3]
+        in_gyro_y = inputs[0][4]
+        in_gyro_z = inputs[0][5]
+
+        in_acc = K.stack([in_acc_x, in_acc_y, in_acc_z])
+        in_gyro = K.stack([in_gyro_x, in_gyro_y, in_gyro_z])
+        in_all = K.stack([in_acc, in_gyro])
+        in_all = tf.reshape(in_all, [-1, in_all.shape[0], in_all.shape[1], in_all.shape[2]])
+        """
+
+        x = self.conv1(inputs)
+        x = self.bn1(x)
+        x = self.act1(x)
+
+        x = self.conv2(x)
+        x = self.bn2(x)
+        x = self.act2(x)
+
+        x = self.conv3(x)
+        x = self.bn3(x)
+        x = self.act3(x)
+
+        x = self.gap(x)
+        x = self.flt(x)
+        x = self.fc1(x)
+        return x

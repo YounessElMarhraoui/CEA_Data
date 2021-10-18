@@ -23,15 +23,15 @@ if __name__ == "__main__":
     model_store = "models"
     data_store = "data/outputs"
 
-    window_size_list = [3, 4, 5, 6, 10, 15]
+    window_size_list = [3]
     formatted_frames = None
     for window_size in window_size_list:
         skip_size = window_size
         data_formattor = FormatData(DATA_PATH)
-        formatted_frames = data_formattor(window_size=window_size, skip_size=skip_size, transform_type='all')
-        for transform_type in [None, 'dct', 'fft']:
+        for transform_type in [None]:
             print('#'*70)
             print('WINDOW SIZE: {} - TRANSFORM TYPE: {}'.format(window_size, transform_type))
             print('#'*70)
+            formatted_frames = data_formattor(window_size=window_size, skip_size=skip_size, transform_type=transform_type)
             model_trainer = modelTrain(formatted_frames, window_size, transform_type, model_store, data_store)
             model_trainer()

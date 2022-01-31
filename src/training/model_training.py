@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from .neural_models import CNNModel, CNNModel_comp, MultiLSTMModel, UniModalLSTMModel, MultiCNNModel, \
-    CNN_two_channels_Model, CNN_two_channels_Model_bis, CNN_two_channels_Model_tri
+    CNN_two_channels_Model, CNN_two_channels_Model_bis, CNN_two_channels_Model_tri, ConvLSTMConvTranspose
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 
@@ -62,22 +62,21 @@ class modelTrain:
         self.test_df = {}
         self.test_var_frames = {}
         self.test_df = self.frames_dict['df_test']
-
-        self.list_models = {#'cnn_model': CNNModel(),
-                            #'cnn_model_comp': CNNModel_comp(),
-                            #'uni_lstm_model': UniModalLSTMModel(),
-                            #'multi_lstm_model': MultiLSTMModel(),
-                            #'multi_cnn_model': MultiCNNModel(),
-                            #'cnn_two_channels_model': CNN_two_channels_Model(),
-                            #'cnn_two_channels_model_bis': CNN_two_channels_Model_bis(),
-                            'cnn_two_channels_model_tri': CNN_two_channels_Model_tri()}
+        
+        self.list_models = {'cnn_model_comp': CNNModel_comp(),
+                            'uni_lstm_model': UniModalLSTMModel(),
+                            'multi_lstm_model': MultiLSTMModel(),
+                            'multi_cnn_model': MultiCNNModel(),
+                            'cnn_two_channels_model': CNN_two_channels_Model(),
+                            'convlstm_deconv_model': ConvLSTMConvTranspose()
+        }
 
     def train_model(self, model, model_name, n_epochs=20, bs=800):
         if model_name in ['multi_lstm_model', 'multi_cnn_model']:
             self.X_train = self.multi_input[0]
             self.X_dev = self.multi_input[1]
             self.X_test = self.multi_input[2]
-        elif model_name in ['cnn_two_channels_model', 'cnn_two_channels_model_bis', 'cnn_two_channels_model_tri']:
+        elif model_name in ['cnn_two_channels_model', 'convlstm_deconv_model']:                 #'cnn_two_channels_model_bis', 'cnn_two_channels_model_tri', 
             self.X_train = self.uni_input[0].reshape(-1, 2, 3, self.window_size, 1)
             self.X_dev = self.uni_input[1].reshape(-1, 2, 3, self.window_size, 1)
             self.X_test = self.uni_input[2].reshape(-1, 2, 3, self.window_size, 1)
@@ -94,21 +93,16 @@ class modelTrain:
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         model.fit(self.X_train, self.y_train, validation_data=(self.X_dev, self.y_dev),
                   epochs=n_epochs, batch_size=bs, verbose=2)
-        #model.save(self.model_store + '/' + model_name + '_ws_{}_transform_{}'.format(
-        #    self.window_size, self.transform_type))
+        model.save(self.model_store + '/' + model_name + '_ws_{}_transform_{}'.format(
+            self.window_size, self.transform_type))
 
     def predict(self, model):
         y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
-        # print("Xtest shape: ",self.X_test.shape)
-        # print("ytest shape: ",self.y_test.shape)
-        # print(y_pred.shape)
         y_pred = np.where(y_pred >= 0.5, 1, 0)
         y_real_pred = [[ele] * self.window_size for ele in y_pred]
         y_real_pred = np.asarray(y_real_pred).flatten()
         y_real_test = self.test_df.appui_leve.values[:len(y_real_pred)]
-        # print("Y test shape: ", y_real_test.shape)
-        # print("Y pred shape: ", y_real_pred.shape)
         print("Accuracy score: ", accuracy_score(y_real_test, y_real_pred))
         print("Confusion matrix: \n", confusion_matrix(y_real_test, y_real_pred))
         print("Classification report: \n", classification_report(y_real_test, y_real_pred))

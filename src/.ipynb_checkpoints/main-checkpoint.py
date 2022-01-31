@@ -23,12 +23,12 @@ if __name__ == "__main__":
     model_store = "models"
     data_store = "data/outputs"
 
-    window_size_list = [3]
+    window_size_list = [3, 4, 5, 6]
     formatted_frames = None
     for window_size in window_size_list:
         skip_size = window_size
         data_formattor = FormatData(DATA_PATH)
-        for transform_type in [None]:
+        for transform_type in [None, 'dct', 'fft']:
             print('#'*70)
             print('WINDOW SIZE: {} - TRANSFORM TYPE: {}'.format(window_size, transform_type))
             print('#'*70)
